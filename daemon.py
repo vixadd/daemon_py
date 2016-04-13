@@ -112,6 +112,6 @@ class Daemon:
 		self.start()
 
 	def run(self):
-		''' Indented Block '''
+		pass
 		# Your function in python goes in this function: Must override in the instatiation.
 		

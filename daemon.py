@@ -1,44 +1,44 @@
 #!/usr/bin/env python
 
 import sys, os, time, atexit
-from signal import SIGTERM 
+from signal import SIGTERM
 
 class Daemon:
 	#	A generic daemon class.
 	#	Usage: subclass the Daemon class and override the run() method
-	
+
 	def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 		self.stdin = stdin
 		self.stdout = stdout
 		self.stderr = stderr
 		self.pidfile = pidfile
-	
+
 	def daemonize(self):
 		# Do the UNIX double-fork
-		try: 
-			pid = os.fork() 
+		try:
+			pid = os.fork()
 			if pid > 0:
 				# exit first parent
-				sys.exit(0) 
-		except OSError, e: 
+				sys.exit(0)
+		except OSError, e:
 			sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
 			sys.exit(1)
-	
+
 		# decouple from parent environment
-		os.chdir("/") 
-		os.setsid() 
-		os.umask(0) 
-	
+		os.chdir("/")
+		os.setsid()
+		os.umask(0)
+
 		# do second fork
-		try: 
-			pid = os.fork() 
+		try:
+			pid = os.fork()
 			if pid > 0:
 				# exit from second parent
-				sys.exit(0) 
-		except OSError, e: 
+				sys.exit(0)
+		except OSError, e:
 			sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
-			sys.exit(1) 
-	
+			sys.exit(1)
+
 		# redirect standard file descriptors
 		sys.stdout.flush()
 		sys.stderr.flush()
@@ -48,12 +48,12 @@ class Daemon:
 		os.dup2(si.fileno(), sys.stdin.fileno())
 		os.dup2(so.fileno(), sys.stdout.fileno())
 		os.dup2(se.fileno(), sys.stderr.fileno())
-	
+
 		# write pidfile
 		atexit.register(self.delpid)
 		pid = str(os.getpid())
 		file(self.pidfile,'w+').write("%s\n" % pid)
-	
+
 	def delpid(self):
 		os.remove(self.pidfile)
 
@@ -66,12 +66,12 @@ class Daemon:
 			pf.close()
 		except IOError:
 			pid = None
-	
+
 		if pid:
 			message = "pidfile %s already exist. Daemon already running?\n"
 			sys.stderr.write(message % self.pidfile)
 			sys.exit(1)
-		
+
 		# Start the daemon
 		self.daemonize()
 		self.run()
@@ -85,13 +85,13 @@ class Daemon:
 			pf.close()
 		except IOError:
 			pid = None
-	
+
 		if not pid:
 			message = "pidfile %s does not exist. Daemon not running?\n"
 			sys.stderr.write(message % self.pidfile)
 			return # not an error in a restart
 
-		# Try killing the daemon process	
+		# Try killing the daemon process
 		try:
 			while 1:
 				os.kill(pid, SIGTERM)
@@ -107,11 +107,11 @@ class Daemon:
 
 	def restart(self):
 		# Restart the daemon
-		
+
 		self.stop()
 		self.start()
 
 	def run(self):
 		pass
 		# Your function in python goes in this function: Must override in the instatiation.
-		
+

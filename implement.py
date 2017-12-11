@@ -6,6 +6,7 @@ from daemon import Daemon
 class MyDaemon(Daemon):
 	def run(self):
 		while True:
+			# Do something different here next time.
 			time.sleep(1)
 
 
